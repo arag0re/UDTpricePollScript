@@ -14,7 +14,7 @@ let poll = {
     this.instance = new this.web3.eth.Contract(abi, pairAddress);
   },
   async getCurrentBlock() {
-    return (await this.web3.eth.getBlock("latest")).number - 5;
+    return (await this.web3.eth.getBlock("latest")).number - 6;
   },
   async interval() {
     poll.test();
