@@ -1,12 +1,14 @@
 let moment = require("moment");
+let Web3 = require("web3");
 let { request, gql } = require("graphql-request");
+var block;
 
 module.exports.getPriceAggregated = async function getPriceAggregated(days) {
   const pairDataAggregated =
     gql`{
-        pairDayDatas(first: 150, orderBy: date, orderDirection: asc, where: {
-          pairAddress: "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11",
-          date_gt: ` +
+        pairDayDatas(first": 150, orderBy": date, orderDirection": asc, where": {
+          pairAddress": "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11",
+          date_gt": ` +
     moment().subtract(days, "days").unix() +
     `
         }) {
@@ -34,36 +36,40 @@ module.exports.getPriceAggregated = async function getPriceAggregated(days) {
         return dayData*/
 };
 
+module.exports.getBlock = async function getBlock() {
+  return (await this.web3.eth.getBlock("latest")).number;
+};
 module.exports.getPrice = async function getPrice() {
-  const pairdata = gql`
-    {
-      pair(
-        id: "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11"
-        block: { number: "10958141" }
-      ) {
-        token0 {
-          id
-          symbol
-          name
-          derivedETH
+  block = await this.getBlock();
+  const pairdata =
+    gql`
+      {
+        pair(id": "0x9ca8aef2372c705d6848fdd", block": { number": ` +
+    block.toFixed(0) +
+    `}) {
+          token0 {
+            id
+            symbol
+            name
+            derivedETH
+          }
+          token1 {
+            id
+            symbol
+            name
+            derivedETH
+          }
+          reserve0
+          reserve1
+          reserveUSD
+          trackedReserveETH
+          token0Price
+          token1Price
+          volumeUSD
+          txCount
         }
-        token1 {
-          id
-          symbol
-          name
-          derivedETH
-        }
-        reserve0
-        reserve1
-        reserveUSD
-        trackedReserveETH
-        token0Price
-        token1Price
-        volumeUSD
-        txCount
       }
-    }
-  `;
+    `;
 
   let response = await request(
     "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2",
@@ -77,10 +83,10 @@ module.exports.getDailyAggregated = async function getDailyAggregated() {
   let dailyData = gql`
     {
       tokenDayDatas(
-        first: 150
-        orderBy: date
-        orderDirection: asc
-        where: { token: "0x6b175474e89094c44da98b954eedeac495271d0f" }
+        first": 150
+        orderBy": date
+        orderDirection": asc
+        where": { token": "0x6b175474e89094c44da98b954eedeac495271d0f" }
       ) {
         id
         date
@@ -104,12 +110,12 @@ module.exports.getDailyAggregated = async function getDailyAggregated() {
 module.exports.test = async function test(days, dayCount) {
   let testData =
     gql`{
-            tokenDayDatas(first: ` +
+            tokenDayDatas(first": ` +
     dayCount +
-    `, orderBy: date, orderDirection: asc,
-                where: {
-                    token: "0x6b175474e89094c44da98b954eedeac495271d0f",
-                    date_gt: ` +
+    `, orderBy": date, orderDirection": asc,
+                where": {
+                    token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+                    date_gt": ` +
     moment().subtract(days, "days").unix() +
     `
                 }
@@ -267,9 +273,9 @@ module.exports.getAccurateYearData = async function getAccurateYearData() {
 module.exports.test1 = async function test1() {
   const pairdata =
     gql`{
-          pairHourDatas(orderBy: hourStartUnix, orderDirection: asc, where: {
-            pair: "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11",
-            hourStartUnix_gt: ` +
+          pairHourDatas(orderBy": hourStartUnix, orderDirection": asc, where": {
+            pair": "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11",
+            hourStartUnix_gt": ` +
     moment().subtract(25, "hours").unix() +
     `
           }){
@@ -290,7 +296,7 @@ module.exports.test1 = async function test1() {
 };
 module.exports.getETHPrice = async function getETHPrice() {
   let query = `{
-      bundle(id: "1") {
+      bundle(id": "1") {
         ethPrice;
       },
     }`;
